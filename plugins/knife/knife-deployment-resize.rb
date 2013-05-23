@@ -69,6 +69,12 @@ module ClearwaterKnifePlugins
              :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--#{node}-count must be an integer"; exit 2 end }
     end
 
+    option :sipp_count,
+      :long => "--sipp-count SIPP_COUNT",
+      :default => 0,
+      :description => "Number of sipp nodes to launch",
+      :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--sipp-count must be an integer"; exit 2 end }
+
     option :fail_limit,
       :long => "--fail-limit FAIL_LIMIT",
       :default => 5,
@@ -114,12 +120,12 @@ module ClearwaterKnifePlugins
     def launch_box(box, environment, retries)
       success = false
 
-      # Since we run this in an agressively multi-threaded way, smear our start
-      # times out randomly over a 5 second period to avoid spamming cloud
-      # provisioning APIs.
-      sleep(rand * 5)
-
       loop do
+        # Since we run this in an agressively multi-threaded way, smear our start
+        # times out randomly over a 20 second period to avoid spamming cloud
+        # provisioning APIs.
+        sleep(rand * 20)
+
         begin
           box_create = BoxCreate.new("-E #{environment}".split)
           box_create.name_args = [box[:role]]
@@ -195,7 +201,7 @@ module ClearwaterKnifePlugins
       box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
       victims = find_nodes(roles: "clearwater-infrastructure")
       # Only delete nodes with roles contained in this whitelist
-      whitelist = ["bono", "ellis", "homer", "homestead", "sprout"]
+      whitelist = ["bono", "ellis", "homer", "homestead", "sprout", "sipp"]
       victims.select! { |v| not (v.roles & whitelist).empty? }
       victims.select! { |v| not box_list.include? v.name }
 
@@ -222,7 +228,7 @@ module ClearwaterKnifePlugins
 
     def get_current_counts
       result = Hash.new(0)
-      %w{bono sprout ellis homer homestead}.each do |node|
+      %w{bono sprout ellis homer homestead sipp}.each do |node|
         result[node.to_sym] = find_nodes(roles: "clearwater-infrastructure", role: node).length
       end
       return result
@@ -309,7 +315,8 @@ module ClearwaterKnifePlugins
                      sprout: config[:sprout_count],
                      homer: config[:homer_count],
                      ellis: 1,
-                     bono: config[:bono_count] }
+                     bono: config[:bono_count],
+                     sipp: config[:sipp_count] }
 
       # Confirm changes if there are any
       confirm_changes(old_counts, new_counts) unless old_counts == new_counts
@@ -396,7 +403,7 @@ module ClearwaterKnifePlugins
         Thread.current[:status][item] = {:status => "Pending"}
       end
 
-      ["bono", "ellis", "homer", "homestead", "sprout"].each do |node|
+      ["bono", "ellis", "homer", "homestead", "sprout", "sipp"].each do |node|
         Thread.current[:status]["Nodes"][node] =
           {:status => "Pending", :count => config["#{node}_count".to_sym]}
       end

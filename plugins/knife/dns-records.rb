@@ -103,6 +103,7 @@ module Clearwater
         options[:value] = [ n[:cloud][:public_ipv4] ]
         options[:ttl] = attributes["dns_ttl"]
         create_or_update_record(subdomain, options)
+        sleep 0.4
       end
     end
 
@@ -110,6 +111,7 @@ module Clearwater
       nodes.each do |n|
         subdomain, options = calculate_options_from_node(n)
         delete_record(subdomain, options)
+        sleep 0.4
       end
     end
 
