@@ -78,14 +78,14 @@ module ClearwaterKnifePlugins
       flavor_overrides = {
         bono: nil, # or bono: "m1.large" etc...
         ellis: nil,
-        homestead: nil,
-        homer: nil,
-        sprout: nil,
+        homestead: "m1.large",
+        homer: "m1.large",
+        sprout: "m1.large",
         ibcf: nil,
         dns: nil,
         sipp: nil,
         enum: nil,
-        cacti: nil
+        cacti: "m1.medium"
       }
 
       box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)
