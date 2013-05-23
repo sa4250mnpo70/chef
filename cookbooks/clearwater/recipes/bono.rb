@@ -37,6 +37,11 @@ package "bono" do
   options "--force-yes"
 end
 
+package "bono-dbg" do
+  action [:install]
+  options "--force-yes"
+end
+
 package "restund" do
   action [:install]
   options "--force-yes"

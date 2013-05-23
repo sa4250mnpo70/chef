@@ -36,3 +36,8 @@ package "sprout" do
   action [:install]
   options "--force-yes"
 end
+
+package "sprout-dbg" do
+  action [:install]
+  options "--force-yes"
+end

@@ -115,6 +115,11 @@ service "clearwater-infrastructure" do
   action :restart
 end
 
+package "clearwater-snmpd" do
+  action [:install]
+  options "--force-yes"
+end
+
 if node[:clearwater][:package_update_minutes]
   cron "package update" do
     minute ("*/" + node[:clearwater][:package_update_minutes].to_s)
