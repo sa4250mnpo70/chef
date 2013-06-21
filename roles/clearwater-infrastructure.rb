@@ -100,6 +100,16 @@ default_attributes "clearwater" => {
   # to a secure value.
   "ellis_cookie_key" => Chef::Config[:knife][:ellis_cookie_key],
 
+  # Secret keys for Homestead-stored passwords. Set to a secure value.
+  "homestead_password_encryption_key" => Chef::Config[:knife][:homestead_password_encryption_key],
+
+  # Cassandra hostname for both homer and homestead.
+  "cassandra_hostname" => "localhost",
+
+  # HSS configuration settings.
+  "hss_hostname" => "0.0.0.0",
+  "hss_port" => 3868,
+
   # SMTP credentials as supplied by your email provider.
   # Only required for password recovery function.
   "smtp_server"     => Chef::Config[:knife][:smtp_server],
