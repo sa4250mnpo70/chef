@@ -86,6 +86,7 @@ module ClearwaterKnifePlugins
         sipp: nil,
         enum: nil,
         cacti: "m1.medium"
+        plivo: nil,
       }
 
       box_manager = Clearwater::BoxManager.new(config[:cloud].to_sym, env, attributes)

@@ -61,19 +61,13 @@ module ClearwaterKnifePlugins
       BindRecordsCreate.load_deps
     end
 
-    %w{bono homestead homer sprout}.each do |node|
+    %w{bono homestead homer ibcf sprout sipp}.each do |node|
       option "#{node}_count".to_sym,
              long: "--#{node}-count #{node.upcase}_COUNT",
-             default: 1,
+             default: (["ibcf", "sipp"].include? node) ? 0 : 1,
              description: "Number of #{node} nodes to launch",
              :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--#{node}-count must be an integer"; exit 2 end }
     end
-
-    option :sipp_count,
-      :long => "--sipp-count SIPP_COUNT",
-      :default => 0,
-      :description => "Number of sipp nodes to launch",
-      :proc => Proc.new { |arg| Integer(arg) rescue begin Chef::Log.error "--sipp-count must be an integer"; exit 2 end }
 
     option :fail_limit,
       :long => "--fail-limit FAIL_LIMIT",
@@ -201,7 +195,7 @@ module ClearwaterKnifePlugins
       box_list.map! { |b| node_name_from_definition(env, b[:role], b[:index]) }
       victims = find_nodes(roles: "clearwater-infrastructure")
       # Only delete nodes with roles contained in this whitelist
-      whitelist = ["bono", "ellis", "homer", "homestead", "sprout", "sipp"]
+      whitelist = ["bono", "ellis", "ibcf", "homer", "homestead", "sprout", "sipp"]
       victims.select! { |v| not (v.roles & whitelist).empty? }
       victims.select! { |v| not box_list.include? v.name }
 
@@ -228,7 +222,7 @@ module ClearwaterKnifePlugins
 
     def get_current_counts
       result = Hash.new(0)
-      %w{bono sprout ellis homer homestead sipp}.each do |node|
+      %w{bono ellis ibcf homer homestead sprout sipp}.each do |node|
         result[node.to_sym] = find_nodes(roles: "clearwater-infrastructure", role: node).length
       end
       return result
@@ -311,11 +305,12 @@ module ClearwaterKnifePlugins
 
       # Enumerate current box counts so we can compare the desired list
       old_counts = get_current_counts
-      new_counts = { homestead: config[:homestead_count],
-                     sprout: config[:sprout_count],
-                     homer: config[:homer_count],
+      new_counts = { bono: config[:bono_count],
                      ellis: 1,
-                     bono: config[:bono_count],
+                     ibcf: config[:ibcf_count],
+                     homestead: config[:homestead_count],
+                     homer: config[:homer_count],
+                     sprout: config[:sprout_count],
                      sipp: config[:sipp_count] }
 
       # Confirm changes if there are any
