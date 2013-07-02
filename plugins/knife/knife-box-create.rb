@@ -85,7 +85,7 @@ module ClearwaterKnifePlugins
         dns: nil,
         sipp: nil,
         enum: nil,
-        cacti: "m1.medium"
+        cacti: "m1.medium",
         plivo: nil,
       }
 
